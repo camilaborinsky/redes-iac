@@ -32,10 +32,10 @@ variable "subnet_id" {
     description = "Subnet ID"
 }
 
-variable "iam_instance_profile" {
-    type = string
-    description = "IAM instance profile"
-}
+# variable "iam_instance_profile" {
+#     type = string
+#     description = "IAM instance profile"
+# }
 
 # variable "data_volume_size" {
 #     type = number

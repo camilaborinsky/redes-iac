@@ -43,62 +43,90 @@ module "public-subnets" {
 
 // Crear EC2
 
-# resource "aws_security_group" "ec2" {
-#     name = "ec2"
-#     description = "Allow inbound traffic"
-#     vpc_id = aws_vpc.this.id
-#     ingress {
-#         from_port = 22
-#         to_port = 22
-#         protocol = "tcp"
-#         security_groups = [aws_security_group.alb.id]
-#     }
-#     ingress {
-#         from_port = 80
-#         to_port = 80
-#         protocol = "tcp"
-#         security_groups = [aws_security_group.alb.id]
-#     }
-#     ingress {
-#         from_port = 443
-#         to_port = 443
-#         protocol = "tcp"
-#         security_groups = [aws_security_group.alb.id]
-#     }
-#     egress {
-#         from_port = 0
-#         to_port = 0
-#         protocol = "-1"
-#         cidr_blocks = ["0.0.0.0/0"]
-#     }
-#     tags = {
-#         Name = "ec2"
-#     }
-# }
+resource "aws_security_group" "ec2" {
+    name = "ec2"
+    description = "Allow inbound traffic"
+    vpc_id = module.vpc.id
 
-# module "ec2-api" {
-#     count = length(local.availability_zones)
-#   source = "./modules/ec2"
+    ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-#   providers = {
-#     aws = aws.aws
-#   }
-#   iam_instance_profile = aws_iam_instance_profile.this.name
-#   security_group_ids = [
-#     aws_security_group.ec2.id
-#   ]
-#   subnet_id         = aws_subnet.this[count.index].id
-#   instance_name     = "express-api-${count.index}"
-#   instance_type     = "t2.micro"
-#   public_ip_address = true
-#   root_volume_size  = 30
-#   root_volume_type  = "gp2"
-#   user_data_path    = "user-data.sh"
-#   tags = {
-#     Name = "express-api-${count.index}"
-#     CreatedBy = "terraform"
-#   }
-# }
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+    ingress {
+        from_port = 22
+        to_port = 22
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    # ingress {
+    #     from_port = 80
+    #     to_port = 80
+    #     protocol = "tcp"
+    #     security_groups = [aws_security_group.alb.id]
+    # }
+    # ingress {
+    #     from_port = 443
+    #     to_port = 443
+    #     protocol = "tcp"
+    #     security_groups = [aws_security_group.alb.id]
+    # }
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    tags = {
+        Name = "ec2"
+    }
+}
+
+module "ec2-api" {
+    count = length(local.availability_zones)
+  source = "./modules/ec2"
+
+  providers = {
+    aws = aws.aws
+  }
+  //iam_instance_profile = aws_iam_instance_profile.this.name
+  security_group_ids = [
+    aws_security_group.ec2.id
+  ]
+  subnet_id         = module.private-subnets[count.index].id
+  instance_name     = "express-api-${count.index}"
+  instance_type     = "t2.micro"
+  public_ip_address = true
+  root_volume_size  = 30
+  root_volume_type  = "gp2"
+  user_data_path    = "user-data.sh"
+  tags = {
+    Name = "express-api-${count.index}"
+    CreatedBy = "terraform"
+  }
+}
 
 
 # resource "aws_security_group" "alb" {
