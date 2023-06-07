@@ -1,2 +1,3 @@
 /terraform/aws_credentials.txt
 .terraform
+*.pem
