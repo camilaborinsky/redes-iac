@@ -1,1 +1,2 @@
-./terraform/aws_credentials.txt
+/terraform/aws_credentials.txt
+.terraform
