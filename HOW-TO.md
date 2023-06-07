@@ -28,3 +28,15 @@ Para levantar la red en AWS, se debe ejecutar el script `network.sh` ubicado en 
 cd scripts
 ./network.sh
 ```
+
+## Modulos
+
+En la carpeta `modules` se encuentran distintos modulos que implementamos para lograr una configuracion consistente y repetible de los recursos mas comunes que creamos. Los mismos permiten que con el solo completado de algunas variables se cree todo un recurso o un grupo de recursos especifico. En ella encontramos los modulos de:
+
+- cloudfront
+- ec2
+- internet_gateway
+- nat_gateway
+- s3
+- subnet
+- vpc
