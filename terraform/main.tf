@@ -158,6 +158,49 @@ module "ec2-api" {
 
 # // Crear ALB
 
+module "alb" {
+  source  = "terraform-aws-modules/alb/aws"
+  version = "~> 8.0"
+  name    = "redes-alb"
+
+  load_balancer_type = "application"
+
+  vpc_id  = module.vpc.id
+  subnets = [for s in module.private-subnets : s.id]
+  # security_groups    = ["sg-edcd9784", "sg-edcd9785"]
+
+  access_logs = {
+    bucket = "redes-alb-logs"
+  }
+
+  target_groups = [
+    {
+      name_prefix      = "api-"
+      backend_protocol = "HTTP"
+      backend_port     = 80
+      target_type      = "instance"
+      targets = {
+        for idx, instance in module.ec2-api : "instance_${idx + 1}" => {
+          target_id = instance.id
+          port      = var.ec2_api_port
+        }
+      }
+    }
+  ]
+
+  http_tcp_listeners = [
+    {
+      port               = 80
+      protocol           = "HTTP"
+      target_group_index = 0
+    }
+  ]
+
+  tags = {
+    Name = "redes-alb"
+  }
+}
+
 # module "alb" {
 #   source  = "terraform-aws-modules/alb/aws"
 #   version = "~> 6.0"

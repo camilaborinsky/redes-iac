@@ -12,10 +12,11 @@ Trabajo práctico para Redes de Información ITBA, tema 13 (Infraestructura como
 
 Red en AWS
 
-- 1 VPC + 4 subredes (30 min) (2p)
+✅ 1 VPC + 4 subredes (30 min) (2p)
+
 - EC2 con API en express (30 min)(1p)
 - Load Balancer (1 hora) (2p)
-- Nat gateway
+  ✅ Nat gateway
 - Security groups y Nacl(30 min)
 - Script que deploye todo (30 min)
 
@@ -33,7 +34,7 @@ Static website con s3 cloudfront y dominio propio
 - Cloudfront distribution (15 min)
 - Route 53 (45 min)
 
-# f (1hr 30 mins)
+# f (1hr)
 
 - Secret manager (traer secrets necesarios desde la api de express) (45 min)
 - KMS para encriptar logs del bucket del static website (45 min)
