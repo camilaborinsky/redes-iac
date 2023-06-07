@@ -129,32 +129,32 @@ module "ec2-api" {
 }
 
 
-# resource "aws_security_group" "alb" {
-#     name = "alb"
-#     description = "Allow inbound traffic"
-#     vpc_id = aws_vpc.this.id
-#     ingress {
-#         from_port = 80
-#         to_port = 80
-#         protocol = "tcp"
-#         cidr_blocks = [""]
-#     }
-#     ingress {
-#         from_port = 443
-#         to_port = 443
-#         protocol = "tcp"
-#         cidr_blocks = [""]
-#     }
-#     egress {
-#         from_port = 0
-#         to_port = 0
-#         protocol = "-1"
-#         cidr_blocks = [""]
-#     }
-#     tags = {
-#         Name = "alb"
-#     }
-# }
+resource "aws_security_group" "alb" {
+    name = "alb"
+    description = "Allow inbound traffic"
+    vpc_id = module.vpc.id
+    ingress {
+        from_port = 80
+        to_port = 80
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    ingress {
+        from_port = 443
+        to_port = 443
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    tags = {
+        Name = "alb-sg"
+    }
+}
 
 # // Crear ALB
 
@@ -166,12 +166,12 @@ module "alb" {
   load_balancer_type = "application"
 
   vpc_id  = module.vpc.id
-  subnets = [for s in module.private-subnets : s.id]
-  # security_groups    = ["sg-edcd9784", "sg-edcd9785"]
+  subnets = [for s in module.public-subnets : s.id]
+  security_groups    = [aws_security_group.alb.id]
 
-  access_logs = {
-    bucket = "redes-alb-logs"
-  }
+  # access_logs = {
+  #   bucket = "redes-alb-logs"
+  # }
 
   target_groups = [
     {
@@ -181,7 +181,7 @@ module "alb" {
       target_type      = "instance"
       targets = {
         for idx, instance in module.ec2-api : "instance_${idx + 1}" => {
-          target_id = instance.id
+          target_id = instance.instance_id
           port      = var.ec2_api_port
         }
       }
@@ -200,62 +200,3 @@ module "alb" {
     Name = "redes-alb"
   }
 }
-
-# module "alb" {
-#   source  = "terraform-aws-modules/alb/aws"
-#   version = "~> 6.0"
-
-#   name = "api-alb"
-
-#   load_balancer_type = "application"
-
-#   vpc_id          = aws_vpc.this.id
-#   subnets         = [aws_subnet.s1.id, aws_subnet.s2.id]
-#   security_groups = [aws_security_group.alb.id]
-
-#     // access logs (requiere un s3 bucket)
-
-#   //dynamic block over ec2 instances for target groups
-
-#   dynamic "target_group" {
-#     for_each = module.ec2-api.instances
-#     content {
-#       name_prefix = "api-tg"
-#       port        = 80
-#       protocol    = "HTTP"
-#       vpc_id      = aws_vpc.this.id
-
-#       health_check {
-#         healthy_threshold   = 2
-#         unhealthy_threshold = 2
-#         timeout             = 3
-#         interval            = 30
-#         path                = "/"
-#         matcher             = "200"
-#       }
-
-#       target_type = "instance"
-
-#       deregistration_delay = 300
-
-#       stickiness {
-#         type    = "lb_cookie"
-#         enabled = true
-#       }
-
-#       tags = {
-#         Name = "api-tg"
-#       }
-
-#       dynamic "target_group_attachment" {
-#         for_each = module.ec2-api.instances
-#         content {
-#           target_group_arn = target_group.value.arn
-#           target_id        = target_group_attachment.value.instance_id
-#           port             = 80
-#         }
-#       }
-#     }
-#   }
-
-# }

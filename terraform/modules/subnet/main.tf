@@ -11,7 +11,7 @@ resource "aws_route_table" "this" {
   vpc_id = var.vpc_id
 }
 
-resource "aws_route" "this" {
+resource "aws_route" "default" {
   route_table_id = aws_route_table.this.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = var.ng_id
