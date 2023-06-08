@@ -3,16 +3,6 @@ variable "domain_name" {
   description = "Domain name"
 }
 
-variable "vpc_cidr" {
-  type        = string
-  description = "VPC CIDR"
-}
-
-variable "vpc_name" {
-  type        = string
-  description = "VPC Name"
-}
-
 variable "bucket_name"{
   type        = string
   description = "Bucket Name"

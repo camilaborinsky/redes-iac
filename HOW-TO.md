@@ -39,10 +39,10 @@ Para poder levantar la red en AWS, se deben obtener las credenciales de AWS. Par
 ```
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
-AWS_SESSION_TOKEN=
+AWS_SESSION_TOKEN= (opcional)
 ```
 
-## Crear una hosted zone
+## Crear una hosted zone para la api y para el frontend
 
 Se debe crear una hosted zone para ser utilizada en el dominio. Para esto, se debe ingresar a la consola de AWS, ir a Route 53 y crear una hosted zone con el dominio correspondiente. Tener en cuenta que la hosted zone debe ser publica y su nombre debe coincidir con la variable que se define en el archivo `terraform.tfvars`.
 
@@ -102,10 +102,10 @@ La carpeta `express-api` contiene el código de la api en express, la carpeta `f
 Dentro de la carpeta `terraform/api` y `terraform/frontend` se encuentra el archivo `terraform.tfvars` donde se deben definir las variables de terraform. Las variables que se deben definir son las siguientes:
 
 ```
-domain_name  = "dominio a utilizar"
-vpc_cidr     = "cidr de la vpc"
-vpc_name     = "nombre de la vpc"
-ec2_api_port = puerto de la api
+domain_name  = "dominio a utilizar" --> depende de la hosted zone creada
+vpc_cidr     = "cidr de la vpc" --> solo para la api
+vpc_name     = "nombre de la vpc" --> solo para la api
+ec2_api_port = puerto de la api --> solo para la api
 static_resources = "lista de recursos estaticos para s3" --> solo para el frontend
 ```
 

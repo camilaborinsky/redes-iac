@@ -2,15 +2,15 @@ provider "aws" {
   region = var.region
 }
 
-resource "aws_route53_record" "primary" {
+resource "aws_route53_record" "active" {
   zone_id        = var.zone_id
   name           = ""
   type           = "A"
-  set_identifier = "${var.subdomain}-primary"
+  set_identifier = "${var.domain_name}-active"
 
   alias {
-    name                   = var.primary_alb_dns
-    zone_id                = var.primary_alb_zone
+    name                   = var.active_alb_dns
+    zone_id                = var.active_alb_zone_id
     evaluate_target_health = true
   }
 
@@ -19,15 +19,15 @@ resource "aws_route53_record" "primary" {
   }
 }
 
-resource "aws_route53_record" "secondary" {
+resource "aws_route53_record" "passive" {
   zone_id        = var.zone_id
   name           = ""
   type           = "A"
-  set_identifier = "${var.subdomain}-secondary"
+  set_identifier = "${var.domain_name}-passive"
 
   alias {
-    name                   = var.secondary_alb_dns
-    zone_id                = var.secondary_alb_zone
+    name                   = var.passive_alb_dns
+    zone_id                = var.passive_alb_zone_id
     evaluate_target_health = true
   }
 
@@ -36,8 +36,8 @@ resource "aws_route53_record" "secondary" {
   }
 }
 
-resource "aws_route53_health_check" "primary" {
-  fqdn              = "${var.subdomain}.${var.domain_name}"
+resource "aws_route53_health_check" "active" {
+  fqdn              = "${var.domain_name}"
   port              = 80
   type              = "HTTP"
   resource_path     = "/"

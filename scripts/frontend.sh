@@ -6,5 +6,5 @@ cd "$SCRIPT_DIR/../terraform"
 
 export $(cat .env | xargs)
 
-terraform -chdir = ./frontend init
-terraform -chdir = ./frontend apply -auto-approve
+terraform -chdir=./frontend init
+terraform -chdir=./frontend apply -auto-approve
