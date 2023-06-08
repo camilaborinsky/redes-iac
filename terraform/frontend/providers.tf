@@ -1,6 +1,5 @@
 provider "aws" {
   alias  = "aws"  
-
   default_tags {
     tags = {
       author     = "Grupo13"

@@ -1,10 +1,12 @@
+data "aws_region" "current" {}
+
 resource "tls_private_key" "key_pair" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 # Create the Key Pair
 resource "aws_key_pair" "key_pair" {
-  key_name   = "${var.instance_name}_key_pair"  
+  key_name   = "${var.instance_name}_key_pair_${data.aws_region.current.name}"  
   public_key = tls_private_key.key_pair.public_key_openssh
 }
 # Save file

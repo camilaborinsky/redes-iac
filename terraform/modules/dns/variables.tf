@@ -3,6 +3,6 @@ variable "base_domain" {
     description = "The base domain for the DNS zone"
 }
 
-variable "cdn" {
-  description = "The cloudfront distribution for the primary deployment"
-}
+# variable "cdn" {
+#   description = "The cloudfront distribution for the primary deployment"
+# }

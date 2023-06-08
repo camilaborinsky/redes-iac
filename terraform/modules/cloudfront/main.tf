@@ -11,6 +11,10 @@ resource "aws_cloudfront_distribution" "this" {
     s3_origin_config {
       origin_access_identity = var.cloudfront_oai_path
     }
+    origin_shield {
+      enabled              = false
+      origin_shield_region = var.region
+    }
   }
 
   enabled             = true
@@ -45,6 +49,7 @@ resource "aws_cloudfront_distribution" "this" {
 
   viewer_certificate {
     cloudfront_default_certificate = true
- 
+    acm_certificate_arn = var.certificate_arn
+    ssl_support_method = "sni-only"
   }
 }

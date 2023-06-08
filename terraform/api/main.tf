@@ -1,12 +1,6 @@
-# For our 'active' region.
-
-
-provider "aws" {
-  region = "us-east-1"
-}
-
 data "aws_route53_zone" "this" {
   name = "${var.domain_name}"
+  provider = aws.eu-east-1
 }
 
 module "active-network" {
@@ -15,6 +9,10 @@ module "active-network" {
   vpc_name     = "redes-vpc"
   ec2_api_port = 5000
   region      = "us-east-1"
+
+  providers = {
+    aws = aws.eu-east-1
+  }
 }
 
 module "passive-network" {
@@ -22,6 +20,9 @@ module "passive-network" {
   vpc_cidr     = "10.0.0.0/16"
   vpc_name     = "redes-vpc"
   ec2_api_port = 5000
+  providers = {
+    aws = aws.us-east-2
+  }
   region      = "us-east-2"
 }
 

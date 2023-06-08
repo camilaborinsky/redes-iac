@@ -21,3 +21,13 @@ variable "cloudfront_oai_path" {
   description = "The ID of the OAI"
   type = string
 }
+variable "certificate_arn" {
+  description = "The ARN of the certificate"
+  type = string
+}
+
+variable "region" {
+  description = "The region to deploy to"
+  type = string
+  default = "us-east-1"
+}

@@ -1,7 +1,5 @@
-# For our 'primary' region.
-provider "aws" {
-  region = var.region
-}
+
+data "aws_region" "current" {}
 
 // Crear VPC
 module "vpc" {
@@ -163,7 +161,7 @@ resource "aws_security_group" "alb" {
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 8.0"
-  name    = "redes-alb"
+  name    = "redes-alb-${data.aws_region.current.name}"
 
   load_balancer_type = "application"
 

@@ -1,3 +1,6 @@
 /terraform/aws_credentials.txt
 .terraform
 *.pem
+
+/pulumi/node_modules
+learnreact-354818-f1faadb2e6f8.json

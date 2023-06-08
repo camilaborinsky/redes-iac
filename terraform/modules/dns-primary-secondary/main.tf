@@ -7,6 +7,7 @@ resource "aws_route53_record" "active" {
   name           = ""
   type           = "A"
   set_identifier = "${var.domain_name}-active"
+  health_check_id = aws_route53_health_check.active.id
 
   alias {
     name                   = var.active_alb_dns
@@ -28,7 +29,7 @@ resource "aws_route53_record" "passive" {
   alias {
     name                   = var.passive_alb_dns
     zone_id                = var.passive_alb_zone_id
-    evaluate_target_health = true
+    evaluate_target_health = false
   }
 
   failover_routing_policy {

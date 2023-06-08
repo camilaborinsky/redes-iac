@@ -2,9 +2,10 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
-cd "$SCRIPT_DIR/../terraform"
+cd "$SCRIPT_DIR/../pulumi"
 
 export $(cat .env | xargs)
 
-terraform -chdir=./frontend init
-terraform -chdir=./frontend apply -auto-approve
+pulumi login --local
+pulumi stack init dev
+pulumi up --non-interactive --yes
