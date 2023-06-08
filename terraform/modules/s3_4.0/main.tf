@@ -21,8 +21,6 @@ module "site_bucket" {
   # Bucket policies
   attach_policy = true
   policy        = data.aws_iam_policy_document.bucket_policy_document.json
-  # attach_deny_insecure_transport_policy = true
-  # attach_require_latest_tls_policy      = true
 
   # S3 bucket-level Public Access Block configuration
   block_public_acls       = true
@@ -30,8 +28,6 @@ module "site_bucket" {
   ignore_public_acls      = true
   restrict_public_buckets = true
   object_ownership = "BucketOwnerPreferred"
-
-#   acl = "private" # "acl" conflicts with "grant" and "owner"
 
   versioning = {
     status     = true
@@ -42,13 +38,6 @@ module "site_bucket" {
     index_document = "index.html"
     error_document = "error.html"
   }
-#   server_side_encryption_configuration = {
-#     rule = {
-#       apply_server_side_encryption_by_default = {
-#         sse_algorithm = "AES256"
-#       }
-#     }
-#   }
 }
 
 resource "aws_s3_object" "data" {

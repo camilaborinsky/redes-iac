@@ -57,12 +57,11 @@ El codigo se encuentra estructurado de esta manera:
 │    │   └── app.js
 │    ├── package.json
 │    └── package-lock.json
-├── front-react
-│     ├── src
-│     │   └── app.js
-│     ├── package.json
-│     └── package-lock.json
+├── frontend/frontend
+│     └── ... front end code
 ├── scripts
+│     ├── frontend.sh
+│     ├── plan_frontend.sh
 │     ├── network.sh
 │     └── plan_network.sh
 ├── pulumi
@@ -79,27 +78,35 @@ El codigo se encuentra estructurado de esta manera:
     │  └── ...
     │    ├── main.tf
     │    ├── outputs.tf
+    │    ├── datasources.tf (opcional)
+    │    ├── locals.tf (opcional)
     │    └── variables.tf
-    ├─ main.tf
-    ├─ locals.tf
-    ├─ providers.tf
-    ├─ terraform.tfvars
-    ├─ versions.tf
-    └─ variables.tf
-
+    ├── api
+    │    ├─ main.tf
+    │    ├─ locals.tf
+    │    ├─ providers.tf
+    │    ├─ terraform.tfvars
+    │    ├─ versions.tf
+    │    └─ variables.tf
+    └── frontend
+        ├─ main.tf
+        ├─ locals.tf
+        ├─ providers.tf
+        ├─ terraform.tfvars
+        ├─ versions.tf
+        └─ variables.tf
 ```
 
-La carpeta `express-api` contiene el código de la api en express, la carpeta `frontend` contiene el código del front en react, la carpeta `scripts` contiene los scripts para ejecutar los comandos de terraform y pulumi, la carpeta `pulumi` contiene el código de pulumi para GCP y la carpeta `terraform` contiene el código de terraform para AWS.
+La carpeta `express-api` contiene el código de la api en express, la carpeta `frontend` contiene el código del front en react, la carpeta `scripts` contiene los scripts para ejecutar los comandos de terraform y pulumi, la carpeta `pulumi` contiene el código de pulumi para GCP y la carpeta `terraform` contiene el código de terraform para AWS, esta separa en 2 subcarpetas la infraestructura de la api y la infraestructura del frontend.
 
-Dentro de la carpeta `terraform` se encuentra el archivo `terraform.tfvars` donde se deben definir las variables de terraform. Las variables que se deben definir son las siguientes:
+Dentro de la carpeta `terraform/api` y `terraform/frontend` se encuentra el archivo `terraform.tfvars` donde se deben definir las variables de terraform. Las variables que se deben definir son las siguientes:
 
 ```
 domain_name  = "dominio a utilizar"
 vpc_cidr     = "cidr de la vpc"
 vpc_name     = "nombre de la vpc"
 ec2_api_port = puerto de la api
-static_resources = "lista de recursos estaticos para s3"
-
+static_resources = "lista de recursos estaticos para s3" --> solo para el frontend
 ```
 
 Dentro de la carpeta modules se encuentra el código de los módulos de terraform. Los módulos fueron creados para poder reutilizar el código y que sea más fácil de mantener. A su vez permite crear multiples recursos con la misma configuración sin necesidad de repetir el código. Cada módulo posee un archivo `main.tf` donde se define el recurso, un archivo `outputs.tf` donde se definen las salidas del módulo y un archivo `variables.tf` donde se definen las variables del módulo (aka inputs), tambien algunos poseen `locals.tf` para definir variables locales, `datasources.tf` para definir datasources y `versions.tf` para definir las versiones de los providers.
@@ -115,9 +122,11 @@ En la carpeta `modules` se encuentran distintos modulos que implementamos para l
 - internet_gateway
 - nat_gateway
 - network
-- s3
+- s3_4.0
 - subnet
 - vpc
+
+La principal carácterística es el modulo network, que posee los recursos de la red a ser desplegada, se opto por hacer un módulo ya que se quiere replicar la misma infraestructura en varias regiones.
 
 ## Arquitectura
 
@@ -155,10 +164,14 @@ Para levantar una SPA distribuida en cloudfront y S3, se debe ejecutar el script
 
 ```
 cd scripts
-./front.sh
+./frontend.sh
 ```
 
 Esto despliega una SPA en AWS con los siguientes recursos:
 
 - 1 Bucket S3
 - 1 Cloudfront Distribution
+
+## Verificar el funcionamiento de la estrategia pasivo-activo
+
+Para verificar el funcionamiento de esta estrategia podemos simular una caida parando el alb o parando las instancias. El DNS lo que hace es verifcar un healthcheck contra el dominio, si este en algun punto falla entonces cambia el registro DNS a la otra region.
