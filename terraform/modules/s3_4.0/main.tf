@@ -1,63 +1,63 @@
-# 1 - S3 bucket
-resource "aws_s3_bucket" "this" {
-    bucket              = var.bucket_name
-    object_lock_enabled = false
-}
-
-# 2 -Bucket policy
-resource "aws_s3_bucket_policy" "this" {
-    count = var.objects != {} ? 1 : 0
-
-    bucket = aws_s3_bucket.this.id
-    policy = data.aws_iam_policy_document.this.json
-}
-
-# 3 -Website configuration
-resource "aws_s3_bucket_website_configuration" "this" {
-    count = var.index_file != null || var.redirect_hostname != null ? 1 : 0
-    bucket = aws_s3_bucket.this.id
-    #  index_document = var.index_document
-    # redirect_all_requests_to = var.redirect_hostname
-    dynamic "index_document" {
-        for_each = var.index_file != null ? [1] : []
-        # count = var.index_file != null ? 1: 0
-        content {
-            suffix = var.index_file
-        }
+data "aws_iam_policy_document" "bucket_policy_document" {
+  statement {
+    actions = ["s3:GetObject"]
+    resources = [
+      module.site_bucket.s3_bucket_arn,
+      "${module.site_bucket.s3_bucket_arn}/*"
+    ]
+    principals {
+      type        = "AWS"
+      identifiers = var.bucket_access_OAI
     }
-
-    dynamic "error_document" {
-        for_each = var.index_file != null ? [1] : []
-        # count = var.index_file != null ? 1: 0
-        content {
-            key = var.index_file
-        }
-    }
-
-    # dynamic "redirect_all_requests_to" {
-    #     for_each = var.redirect_hostname != null ? [1] : []
-    #     # count = var.redirect_hostname != null ? 1: 0
-    #     content {
-    #         host_name = var.redirect_hostname
-    #     }
-    # }
-
-
+  }
 }
 
-# 4 - Access Control List
-resource "aws_s3_bucket_acl" "this" {
-    bucket = aws_s3_bucket.this.id
-    acl    = var.bucket_acl
+module "site_bucket" {
+  source = "terraform-aws-modules/s3-bucket/aws"
+
+  force_destroy = true
+  bucket = var.bucket
+
+  # Bucket policies
+  attach_policy = true
+  policy        = data.aws_iam_policy_document.bucket_policy_document.json
+  # attach_deny_insecure_transport_policy = true
+  # attach_require_latest_tls_policy      = true
+
+  # S3 bucket-level Public Access Block configuration
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+  object_ownership = "BucketOwnerPreferred"
+
+#   acl = "private" # "acl" conflicts with "grant" and "owner"
+
+  versioning = {
+    status     = true
+    mfa_delete = false
+  }
+
+  website = {
+    index_document = "index.html"
+    error_document = "error.html"
+  }
+#   server_side_encryption_configuration = {
+#     rule = {
+#       apply_server_side_encryption_by_default = {
+#         sse_algorithm = "AES256"
+#       }
+#     }
+#   }
 }
 
-# 5 - Upload objects
-resource "aws_s3_object" "this" {
-    for_each =  try(var.objects, {}) #{ for object, key in var.objects: object => key if try(var.objects, {}) != {} }
+resource "aws_s3_object" "data" {
+  for_each = { for file in local.file_with_type : "${file.file_name}.${file.mime}" => file }
 
-    bucket        = aws_s3_bucket.this.id
-    key           = try(each.value.rendered, replace(each.value.filename, "html/", "")) # remote path
-    source        = try(each.value.rendered, format("./resources/%s", each.value.filename)) # where is the file located
-    content_type  = each.value.content_type
-    storage_class = try(each.value.tier, "STANDARD")
+  bucket       = module.site_bucket.s3_bucket_id
+  key          = each.value.file_name
+  
+  source       = "${var.static_resources}/${each.value.file_name}"
+  etag         = filemd5("${var.static_resources}/${each.value.file_name}")
+  content_type = each.value.mime
 }

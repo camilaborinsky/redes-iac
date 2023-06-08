@@ -1,18 +1,18 @@
-variable "bucket_name" {
+# Input variable definitions
+
+variable "static_resources" {
+  description = "path to static resources"
   type        = string
-  description = "The name of the bucket. Must be less than or equal to 63 characters in length."
 }
 
-variable "objects" {
-  type        = map(any)
-  description = ""
-  default     = {}
+variable "bucket_access_OAI" {
+  description = "OAI of authorized bucket accessors"
+  type        = list(string)
 }
 
-variable "block_public_access" {
-  type        = bool
-  default     = true
-  description = "Determines the S3 account-level Public Access Block configuration. For more information about these settings, see the AWS S3 documentation: https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html"
+variable "bucket" {
+  type        = string
+  description = "The name of the bucket"
 }
 
 variable "bucket_acl" {
